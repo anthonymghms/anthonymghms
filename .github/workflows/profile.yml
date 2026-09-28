@@ -20,18 +20,23 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - id: with_pat
-        uses: yoshi389111/github-profile-3d-contrib@v0.9.3
-        continue-on-error: true
+      - name: Start GraphQL proxy
         env:
-          GITHUB_TOKEN: ${{ secrets.METRICS_TOKEN }}
-          USERNAME: ${{ github.repository_owner }}
+          BASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_TOKEN: ${{ secrets.METRICS_TOKEN }}
+          ORG_IDS: MDEyOk9yZ2FuaXphdGlvbjEzNjc1NjYy,O_kgDOEXVOOA
+          ORG_LOGINS: CapSens,Gambit-Agents,sudo-byte-dev
+        run: |
+          node scripts/graphql-proxy.mjs > proxy.log 2>&1 &
+          sleep 1
 
-      - if: steps.with_pat.outcome != 'success'
-        uses: yoshi389111/github-profile-3d-contrib@v0.9.3
+      - uses: yoshi389111/github-profile-3d-contrib@v0.9.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ENDPOINT: http://localhost:8787
           USERNAME: ${{ github.repository_owner }}
+
+      - run: cat proxy.log
 
       - run: |
           git config user.name "github-actions[bot]"
@@ -40,26 +45,3 @@ jobs:
           git diff --staged --quiet || git commit -m "Update 3D contributions"
           git pull --rebase
           git push
-
-  metrics:
-    needs: skyline
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      METRICS_TOKEN: ${{ secrets.METRICS_TOKEN }}
-    steps:
-      - uses: lowlighter/metrics@v3.34
-        if: env.METRICS_TOKEN != ''
-        continue-on-error: true
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          filename: metrics.svg
-          base: activity
-          config_timezone: Europe/Paris
-          config_display: large
-          repositories_affiliations: owner, collaborator, organization_member
-          plugin_languages: yes
-          plugin_languages_sections: most-used
-          plugin_languages_limit: 6
-          plugin_languages_threshold: 2%
-          plugin_languages_ignored: html, css, scss, shell, dockerfile, makefile, procfile, slim, haml, erb
