@@ -20,9 +20,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: yoshi389111/github-profile-3d-contrib@v0.9.3
+      - id: with_pat
+        uses: yoshi389111/github-profile-3d-contrib@v0.9.3
+        continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.METRICS_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.METRICS_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+
+      - if: steps.with_pat.outcome != 'success'
+        uses: yoshi389111/github-profile-3d-contrib@v0.9.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
 
       - run: |
@@ -42,6 +50,7 @@ jobs:
     steps:
       - uses: lowlighter/metrics@v3.34
         if: env.METRICS_TOKEN != ''
+        continue-on-error: true
         with:
           token: ${{ secrets.METRICS_TOKEN }}
           filename: metrics.svg
