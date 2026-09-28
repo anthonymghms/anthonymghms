@@ -7,6 +7,5 @@ jobs:
       - env:
           T: ${{ secrets.METRICS_TOKEN }}
         run: |
-          curl -sI -H "Authorization: token $T" https://api.github.com/user | grep -iE "^HTTP|x-oauth-scopes|github-authentication-token-expiration|x-github-sso"
           curl -s -H "Authorization: bearer $T" -X POST https://api.github.com/graphql \
-            -d '{"query":"{ viewer { login contributionsCollection { commitContributionsByRepository(maxRepositories: 3) { repository { nameWithOwner } } } } }"}' | head -c 1500
+            -d '{"query":"{ user(login:\"anthonymghms\") { contributionsCollection { commitContributionsByRepository(maxRepositories: 100) { repository { primaryLanguage { name } } contributions { totalCount } } totalCommitContributions } repositories(first: 100, ownerAffiliations: OWNER) { nodes { stargazerCount } } } }"}' | jq -c '.errors, (.data.user != null)'
