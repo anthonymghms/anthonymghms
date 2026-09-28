@@ -1,0 +1,12 @@
+name: debug
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          T: ${{ secrets.METRICS_TOKEN }}
+        run: |
+          curl -sI -H "Authorization: token $T" https://api.github.com/user | grep -iE "^HTTP|x-oauth-scopes|github-authentication-token-expiration|x-github-sso"
+          curl -s -H "Authorization: bearer $T" -X POST https://api.github.com/graphql \
+            -d '{"query":"{ viewer { login contributionsCollection { commitContributionsByRepository(maxRepositories: 3) { repository { nameWithOwner } } } } }"}' | head -c 1500
