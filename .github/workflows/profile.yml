@@ -1,0 +1,56 @@
+name: profile
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile
+
+jobs:
+  skyline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: yoshi389111/github-profile-3d-contrib@v0.9.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.METRICS_TOKEN || secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add profile-3d-contrib
+          git diff --staged --quiet || git commit -m "Update 3D contributions"
+          git pull --rebase
+          git push
+
+  metrics:
+    needs: skyline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      METRICS_TOKEN: ${{ secrets.METRICS_TOKEN }}
+    steps:
+      - uses: lowlighter/metrics@v3.34
+        if: env.METRICS_TOKEN != ''
+        with:
+          token: ${{ secrets.METRICS_TOKEN }}
+          filename: metrics.svg
+          base: activity
+          config_timezone: Europe/Paris
+          config_display: large
+          repositories_affiliations: owner, collaborator, organization_member
+          plugin_languages: yes
+          plugin_languages_sections: most-used
+          plugin_languages_limit: 6
+          plugin_languages_threshold: 2%
+          plugin_languages_ignored: html, css, scss, shell, dockerfile, makefile, procfile, slim, haml, erb
