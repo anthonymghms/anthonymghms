@@ -1,0 +1,14 @@
+name: debug
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          T: ${{ secrets.METRICS_TOKEN }}
+        run: |
+          for org in MDEyOk9yZ2FuaXphdGlvbjEzNjc1NjYy O_kgDOEXVOOA; do
+            curl -s -H "Authorization: bearer $T" -X POST https://api.github.com/graphql \
+              -d "{\"query\":\"{ user(login:\\\"anthonymghms\\\") { contributionsCollection(organizationID:\\\"$org\\\") { commitContributionsByRepository(maxRepositories: 100) { repository { nameWithOwner primaryLanguage { name } } contributions { totalCount } } } } }\"}" \
+              | jq -c '.errors // (.data.user.contributionsCollection.commitContributionsByRepository | map("\(.repository.primaryLanguage.name):\(.contributions.totalCount)"))'
+          done
