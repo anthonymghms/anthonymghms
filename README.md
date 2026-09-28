@@ -1,9 +1,12 @@
+<div align="center">
+
 [![Stack](https://skillicons.dev/icons?i=ruby,rails,postgres,redis,js,tailwind,docker&theme=dark)](https://skillicons.dev)
 
-[![Streak](https://streak-stats.demolab.com?user=anthonymghms&theme=dark&hide_border=true)](https://git.io/streak-stats)
+<br />
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/anthonymghms/anthonymghms/output/github-snake-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/anthonymghms/anthonymghms/output/github-snake.svg" />
-  <img alt="contribution snake" src="https://raw.githubusercontent.com/anthonymghms/anthonymghms/output/github-snake.svg" />
+  <source media="(prefers-color-scheme: dark)" srcset="profile-3d-contrib/profile-night-green.svg" />
+  <img alt="3D contributions" src="profile-3d-contrib/profile-green-animate.svg" />
 </picture>
+
+</div>
